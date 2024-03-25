@@ -4,7 +4,7 @@ from __init__ import CONN, CURSOR
 from employee import Employee
 from skill import Skill
 
-import ipdb
+
 
 def reset_database():
     Employee.drop_table()
@@ -16,13 +16,8 @@ def reset_database():
 reset_database()
 
 anthony = Employee.add_employee("Anthony", 34)
-
-anthony.name = "Tony"
-anthony.age = 35
-anthony.update()
-
 liset = Employee.add_employee("Liset", 32)
+fernan = Employee.add_employee("Fernan", 31)
+michelle = Employee.add_employee("Michelle", 29)
 
-liset.delete()
-
-ipdb.set_trace()
+import ipdb; ipdb.set_trace()
