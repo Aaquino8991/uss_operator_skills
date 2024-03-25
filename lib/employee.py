@@ -2,12 +2,10 @@ from __init__ import CURSOR, CONN
 
 class Employee:
 
-    def __init__(self, name, age, department_id, skills=[], id=None):
+    def __init__(self, name, age, id=None):
         self.id = id
         self.name = name
         self.age = age
-        self.department_id = department_id
-        self.skills = skills
 
     def __repr__(self):
         return f"<Employee {self.id}: {self.name}>"
@@ -18,7 +16,7 @@ class Employee:
             CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY,
             name TEXT,
-            skills TEXT
+            age INTEGER
             )
         """
 
