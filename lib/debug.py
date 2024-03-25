@@ -3,6 +3,7 @@
 from __init__ import CONN, CURSOR
 from employee import Employee
 from skill import Skill
+from factory import Factory
 
 
 
@@ -12,6 +13,9 @@ def reset_database():
 
     Skill.drop_table()
     Skill.create_table()
+
+    Factory.drop_table()
+    Factory.create_table()
 
 reset_database()
 

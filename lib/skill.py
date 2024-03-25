@@ -6,6 +6,8 @@ class Skill:
         self.id = id
         self.skill_name = skill_name
 
+    
+
     @classmethod
     def create_table(cls):
         sql = """

@@ -119,3 +119,12 @@ class Employee:
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+
+
+
+
+
+
+    # Mapping Object Relationships 
+    # Updating Employee class to store the relationship with Factory class.
