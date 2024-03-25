@@ -14,4 +14,15 @@ def reset_database():
     Skill.create_table()
 
 reset_database()
+
+anthony = Employee.add_employee("Anthony", 34)
+
+anthony.name = "Tony"
+anthony.age = 35
+anthony.update()
+
+liset = Employee.add_employee("Liset", 32)
+
+liset.delete()
+
 ipdb.set_trace()

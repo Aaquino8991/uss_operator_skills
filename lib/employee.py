@@ -34,11 +34,36 @@ class Employee:
 
     def save(self):
         sql = """
-            INSERT INTO employees (name, skills)
+            INSERT INTO employees (name, age)
             VALUES (?, ?)
         """
 
-        CURSOR.execute(sql, (self.name, self.skills))
+        CURSOR.execute(sql, (self.name, self.age))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
+
+    @classmethod
+    def add_employee(cls, name , age):
+        employee = cls(name, age)
+        employee.save()
+        return employee
+    
+    def update(self):
+        sql = """
+            UPDATE employees
+            SET name = ?, age = ?
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.name, self.age, self.id))
+        CONN.commit()
+
+    def delete(self):
+        sql = """
+            DELETE FROM employees
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
