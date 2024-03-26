@@ -4,10 +4,11 @@ class Employee:
 
     all = {}
 
-    def __init__(self, name, age, id=None):
+    def __init__(self, name, age, factory_id, id=None):
         self.id = id
         self.name = name
         self.age = age
+        self.factory_id = factory_id
 
     def __repr__(self):
         return f"<Employee {self.id}: {self.name}, {self.age}>"
@@ -18,7 +19,9 @@ class Employee:
             CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY,
             name TEXT,
-            age INTEGER
+            age INTEGER,
+            factory_id INTEGER,
+            FOREIGN KEY (factory_id) REFERENCES factories(id)
             )
         """
 
@@ -36,30 +39,30 @@ class Employee:
 
     def save(self):
         sql = """
-            INSERT INTO employees (name, age)
-            VALUES (?, ?)
+            INSERT INTO employees (name, age, factory_id)
+            VALUES (?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.name, self.age))
+        CURSOR.execute(sql, (self.name, self.age, self.factory_id))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
 
     @classmethod
-    def add_employee(cls, name , age):
-        employee = cls(name, age)
+    def add_employee(cls, name , age, factory_id):
+        employee = cls(name, age, factory_id)
         employee.save()
         return employee
     
     def update(self):
         sql = """
             UPDATE employees
-            SET name = ?, age = ?
+            SET name = ?, age = ?, factory_id = ?
             WHERE id = ?
         """
 
-        CURSOR.execute(sql, (self.name, self.age, self.id))
+        CURSOR.execute(sql, (self.name, self.age, self.factory_id, self.id))
         CONN.commit()
 
     def delete(self):
@@ -72,7 +75,6 @@ class Employee:
         CONN.commit()
 
         del type(self).all[self.id]
-
         self.id = None
 
     @classmethod
@@ -81,8 +83,9 @@ class Employee:
         if employee:
             employee.name = row[1]
             employee.age = row[2]
+            employee.factory_id = row[3]
         else:
-            employee = cls(row[1], row[2])
+            employee = cls(row[1], row[2], row[3])
             employee.id = row[0]
             cls.all[employee.id] = employee
         return employee

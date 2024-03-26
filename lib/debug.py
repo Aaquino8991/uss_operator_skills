@@ -19,9 +19,9 @@ def reset_database():
 
 reset_database()
 
-anthony = Employee.add_employee("Anthony", 34)
-liset = Employee.add_employee("Liset", 32)
-fernan = Employee.add_employee("Fernan", 31)
-michelle = Employee.add_employee("Michelle", 29)
+anthony = Employee.add_employee("Anthony", 34, 1)
+liset = Employee.add_employee("Liset", 32, 2)
+fernan = Employee.add_employee("Fernan", 31, 1)
+michelle = Employee.add_employee("Michelle", 29, 3)
 
 import ipdb; ipdb.set_trace()
