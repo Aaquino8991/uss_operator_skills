@@ -1,92 +1,96 @@
 from __init__ import CURSOR, CONN
 
+
 class Factory:
 
+    # Dictionary of objects saved to the database.
     all = {}
 
-    def __init__(self, factory_name, location, factory_id=None):
-        self.factory_id = factory_id
-        self.factory_name = factory_name
+    def __init__(self, name, location, id=None):
+        self.id = id
+        self.name = name
         self.location = location
 
     def __repr__(self):
-        return f'<Factory {self.factory_id}: {self.factory_name}>'
-    
+        return f"<Factory {self.id}: {self.name}, {self.location}>"
+
     @classmethod
     def create_table(cls):
         sql = """
             CREATE TABLE IF NOT EXISTS factories (
-            factory_id INTEGER PRIMARY KEY,
-            factory_name TEXT,
-            location TEXT
-            )
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            location TEXT)
         """
-
         CURSOR.execute(sql)
         CONN.commit()
 
     @classmethod
     def drop_table(cls):
         sql = """
-            DROP TABLE IF EXISTS factories
+            DROP TABLE IF EXISTS factories;
         """
-
         CURSOR.execute(sql)
         CONN.commit()
 
     def save(self):
         sql = """
-            INSERT INTO factories(factory_name, location)
-            VALUES ?, ?
+            INSERT INTO factories (name, location)
+            VALUES (?, ?)
         """
 
-        CURSOR.execute(sql, (self.factory_name, self.location))
+        CURSOR.execute(sql, (self.name, self.location))
         CONN.commit()
 
-        self.factory_id = CURSOR.lastrowid
-        type(self).all[self.factory_id] = self
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
 
     @classmethod
-    def create_factory(cls, factory_name, location):
-        factory = cls(factory_name, location)
+    def add_factory(cls, name, location):
+        factory = cls(name, location)
         factory.save()
         return factory
 
     def update(self):
         sql = """
             UPDATE factories
-            SET factory_name = ?, location = ?
+            SET name = ?, location = ?
             WHERE id = ?
         """
-
-        CURSOR.execute(sql, (self.factory_name, self.location))
+        CURSOR.execute(sql, (self.name, self.location, self.id))
         CONN.commit()
 
     def delete(self):
         sql = """
             DELETE FROM factories
-            WHERE factory_id = ?
+            WHERE id = ?
         """
 
-        CURSOR.execute(sql, (self.factory_id,))
+        CURSOR.execute(sql, (self.id,))
         CONN.commit()
 
-        del type(self).all[self.factory_id]
-        self.factory_id = None
+        # Delete the dictionary entry using id as the key
+        del type(self).all[self.id]
+
+        # Set the id to None
+        self.id = None
 
     @classmethod
     def instance_from_db(cls, row):
+
+        # Check the dictionary for an existing instance using the row's primary key
         factory = cls.all.get(row[0])
         if factory:
+            # ensure attributes match row values in case local instance was modified
             factory.name = row[1]
-            factory.age = row[2]
-            factory.factory_id = row[3]
+            factory.location = row[2]
         else:
-            factory = cls(row[1], row[2], row[3])
+            # not in dictionary, create new instance and add to dictionary
+            factory = cls(row[1], row[2])
             factory.id = row[0]
-            cls.all[factory.factory_id] = factory
+            cls.all[factory.id] = factory
         return factory
-    
+
     @classmethod
     def get_all(cls):
         sql = """
@@ -97,25 +101,38 @@ class Factory:
         rows = CURSOR.execute(sql).fetchall()
 
         return [cls.instance_from_db(row) for row in rows]
-    
+
     @classmethod
-    def find_by_id(cls, factory_id):
+    def find_by_id(cls, id):
         sql = """
             SELECT *
             FROM factories
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM factories
+            WHERE name is ?
+        """
+
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+
+    def employees(self):
+        from employee import Employee
+        sql = """
+            SELECT * FROM employees
             WHERE factory_id = ?
         """
+        CURSOR.execute(sql, (self.id,),)
 
-        row = CURSOR.execute(sql, (factory_id,)).fetchone()
-        return cls.instance_from_db(row) if row else None
-    
-    @classmethod
-    def find_by_name(cls, factory_name):
-        sql = """
-            SELECT *
-            FROM factories
-            WHERE factory_name is ?
-        """
-
-        row = CURSOR.execute(sql, (factory_name,)).fetchone()
-        return cls.instance_from_db(row) if row else None
+        rows = CURSOR.fetchall()
+        return [
+            Employee.instance_from_db(row) for row in rows
+        ]
