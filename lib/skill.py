@@ -2,18 +2,18 @@ from __init__ import CURSOR, CONN
 
 class Skill:
 
-    def __init__(self, skill_name):
-        self.id = id
-        self.skill_name = skill_name
+    all = {}
 
-    
+    def __init__(self, name):
+        self.id = id
+        self.name = name
 
     @classmethod
     def create_table(cls):
         sql = """
             CREATE TABLE IF NOT EXISTS skills (
             id INTEGER PRIMARY KEY,
-            skill_name TEXT
+            name TEXT
             )
         """
 
@@ -28,3 +28,88 @@ class Skill:
 
         CURSOR.execute(sql)
         CONN.commit()
+
+    def save(self):
+        sql = """
+            INSERT INTO skills (name)
+            VALUES (?)
+        """
+
+        CURSOR.execute(sql, (self.name,))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+
+    @classmethod
+    def add_skill(cls, name):
+        skill = cls(name)
+        skill.save()
+        return skill
+    
+    def update(self):
+        sql = """
+            UPDATE skills
+            SET name = ?
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.name, self.id))
+        CONN.commit()
+
+    def delete(self):
+        sql = """
+            DELETE FROM skills
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+
+        del type(self).all[self.id]
+        self.id = None
+
+    @classmethod
+    def instance_from_db(cls, row):
+
+        skill = cls.all.get(row[0])
+        if skill:
+            skill.name = row[1]
+        else:
+            skill = cls(row[1])
+            skill.id = row[0]
+            cls,all[skill.id] = skill
+        return skill
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM skills
+        """
+
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM skills
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM skills
+            WHERE name is ?
+        """
+
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(row) if row else None

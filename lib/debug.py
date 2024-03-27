@@ -28,4 +28,11 @@ ace = Factory.add_factory("Ace", "Building 1")
 michigan = Factory.add_factory("Michigan", "Building 2")
 fontana = Factory.add_factory("Fontana", "Building 3")
 
+assembly = Skill.add_skill("Assembly")
+throwing = Skill.add_skill("Throwing")
+lapping = Skill.add_skill("Lapping")
+cg = Skill.add_skill("CG")
+corner = Skill.add_skill("Corner")
+polishing = Skill.add_skill("Polishing")
+
 import ipdb; ipdb.set_trace()
