@@ -1,5 +1,6 @@
 from __init__ import CURSOR, CONN
 
+
 class Skill:
 
     all = {}
@@ -7,6 +8,9 @@ class Skill:
     def __init__(self, name):
         self.id = id
         self.name = name
+
+    def __repr__(self):
+        return f"<Skill {self.id}: {self.name}>"
 
     @classmethod
     def create_table(cls):
@@ -113,3 +117,27 @@ class Skill:
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+
+    def employees(self):
+        from employee import Employee
+        sql = """
+            SELECT * FROM employees
+            WHERE skills_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+
+        rows = CURSOR.fetchall()
+        return [
+            Employee.instance_from_db(row) for row in rows
+        ]
+    
+    def list_employees(self):
+        from employee import Employee
+        return [employee for employee in Employee.all if self in str(employee.skills())]
+    
+    def add_employee(self, employee):
+        from employee import Employee
+        if isinstance(employee, Employee):
+            employee.add_skill(self)
+        else:
+            raise ValueError("Employee not found.")

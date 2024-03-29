@@ -19,10 +19,10 @@ def reset_database():
 
 reset_database()
 
-anthony = Employee.add_employee("Anthony", 34, 1)
-liset = Employee.add_employee("Liset", 32, 2)
-fernan = Employee.add_employee("Fernan", 31, 1)
-michelle = Employee.add_employee("Michelle", 29, 3)
+anthony = Employee.add_employee("Anthony", 34)
+liset = Employee.add_employee("Liset", 32)
+fernando = Employee.add_employee("Fernando", 31)
+michelle = Employee.add_employee("Michelle", 29)
 
 ace = Factory.add_factory("Ace", "Building 1")
 michigan = Factory.add_factory("Michigan", "Building 2")
